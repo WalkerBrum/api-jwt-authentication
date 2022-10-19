@@ -1,11 +1,9 @@
-// walkerLobato
-// FJcWCJEJXkl4Y3A4
-// mongodb+srv://walkerLobato:<password>@mongoapi.nak4wy2.mongodb.net/?retryWrites=true&w=majority
 const mongoose = require('mongoose');
 
 const user = 'walkerLobato';
 const senha = 'FJcWCJEJXkl4Y3A4';
-const url = `mongodb+srv://${user}:${senha}@mongoapi.lfqwhdq.mongodb.net/?retryWrites=true&w=majority`
+const url = `mongodb+srv://${user}:${senha}@mongoapi.lfqwhdq.mongodb.net/?retryWrites=true&w=majority`;
+
 // Conectando ao banco de dados
 mongoose.connect(url, {}, (error) => {
     if (error) {

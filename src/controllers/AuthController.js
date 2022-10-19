@@ -1,8 +1,37 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 
 const UserModel = require('../models/User');
 
 const router = express.Router();
+
+router.post('/login', async(req, res) => {
+    const { email, password } = req.body;
+
+    const user = await UserModel.findOne({email}).select('+password');
+
+    if (!user) {
+        return res.status(400).json({
+            error: false,
+            message: 'Email não cadastrado!',
+        });
+    }
+
+    if (!await bcrypt.compare(password, user.password)) {
+        return res.status(400).json({
+            error: false,
+            message: 'Senha inválida!',
+        });
+    }
+
+    user.password = undefined;
+
+    return res.status(200).json({
+        user,
+        error: false,
+        message: 'Usuário logado!'
+    });
+});
 
 router.post('/register', async(req, res) => {
     const { email } = req.body;
@@ -11,7 +40,7 @@ router.post('/register', async(req, res) => {
     if (await UserModel.findOne({email})){
         return res.status(400).json({
             error: true,
-            message: 'User alredy exists'
+            message: 'Usuário já esxiste!'
         });
     }
 
@@ -23,7 +52,7 @@ router.post('/register', async(req, res) => {
 
     return res.json({
         error: false,
-        message: 'Registred with sucess!',
+        message: 'Usuário registrado com sucesso!',
         data: User
     });
 });
