@@ -1,9 +1,21 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const jwt =  require('jsonwebtoken');
+const authconfig = require('../config/auth.json')
 
 const UserModel = require('../models/User');
 
 const router = express.Router();
+
+const generateToken = (user = {}) => {
+    // expiresIN é o tempo que o token vai expirar
+    return jwt.sign({
+        id: user.id,
+        name: user.name
+    }, authconfig.secret, {
+        expiresIn: 86400
+    });
+}
 
 router.post('/login', async(req, res) => {
     const { email, password } = req.body;
@@ -28,6 +40,7 @@ router.post('/login', async(req, res) => {
 
     return res.status(200).json({
         user,
+        token: generateToken(user),
         error: false,
         message: 'Usuário logado!'
     });
@@ -40,20 +53,21 @@ router.post('/register', async(req, res) => {
     if (await UserModel.findOne({email})){
         return res.status(400).json({
             error: true,
-            message: 'Usuário já esxiste!'
+            message: 'Usuário já existe!'
         });
     }
 
     // Criando usuário no banco de dados
-    const User = await UserModel.create(req.body);   
+    const user = await UserModel.create(req.body);   
 
     // Para não retornar o password
-    User.password = undefined;
+    user.password = undefined;
 
     return res.json({
+        user,
+        token: generateToken(user),
         error: false,
         message: 'Usuário registrado com sucesso!',
-        data: User
     });
 });
 
